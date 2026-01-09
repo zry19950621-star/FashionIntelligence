@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一周时尚资讯速报 - 每周时尚简报</title>
+    <title>一周时尚资讯速报 - Weekly Fashion Brief</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -11,7 +11,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide 图标 -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -23,69 +23,69 @@
         .selection-blue::selection { background-color: #dbeafe; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .annual-gradient { background: linear-gradient(135deg, #020617 0%, #1e293b 100%)); }
+        .annual-gradient { background: linear-gradient(135deg, #020617 0%, #1e293b 100%); }
         
-        /* 杂志风格 */
+        /* 杂志风格样式 */
         .magazine-dropcap::first-letter {
             float: left;
-            字体大小：5rem；
-            行高：4rem；
+            font-size: 5rem;
+            line-height: 4rem;
             padding-top: 0.5rem;
-            右边距：0.8rem；
-            字体粗细：900；
-            颜色：#000；
+            padding-right: 0.8rem;
+            font-weight: 900;
+            color: #000;
             font-family: 'Noto Serif SC', serif;
         }
 
-        .杂志专栏{
-            列数：1；
+        .magazine-column {
+            column-count: 1;
         }
         @media (min-width: 1024px) {
-            .magazine-column { 列数：2；列间距：3rem； }
+            .magazine-column { column-count: 2; column-gap: 3rem; }
         }
 
         .pull-quote {
-            字体大小：1.5rem；
-            字体粗细：700；
-            字体样式：斜体；
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-style: italic;
             border-top: 2px solid #000;
             border-bottom: 2px solid #000;
             padding: 1.5rem 0;
             margin: 2rem 0;
-            行高：1.4；
-            颜色：#1a1a1a；
+            line-height: 1.4;
+            color: #1a1a1a;
             font-family: 'Noto Serif SC', serif;
         }
 
         .illustration-container {
             margin: 2.5rem 0;
-            背景：#f8fafc；
-            圆角半径：12px；
-            内边距：1.5rem；
-            文本对齐方式：居中；
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
             border: 1px solid #e2e8f0;
         }
 
         @keyframes fadeInUp {
-            从 { opacity: 0; transform: translateY(20px); }
-            设置为 { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .animate-magazine { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         /* 全屏模式样式 */
         .fullscreen-overlay {
-            位置：固定；
-            顶部：0；
-            左侧：0；
-            宽度：100vw；
-            高度：100vh；
-            背景：白色；
-            z-index：1000；
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
             overflow-y: auto;
-            内边距：4rem 2rem；
+            padding: 4rem 2rem;
         }
         .fullscreen-content {
-            最大宽度：1000像素；
+            max-width: 1000px;
             margin: 0 auto;
         }
     </style>
@@ -104,7 +104,7 @@
         const Icon = ({ name, className = "w-4 h-4", strokeWidth = 2 }) => {
             const iconRef = useRef(null);
             useEffect(() => {
-                如果 (iconRef.current && window.lucide) {
+                if (iconRef.current && window.lucide) {
                     iconRef.current.innerHTML = '';
                     const iconElt = document.createElement('i');
                     iconElt.setAttribute('data-lucide', name);
@@ -117,11 +117,11 @@
                     });
                 }
             }, [name, className, strokeWidth]);
-            返回 <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
+            return <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
         };
 
         const App = () => {
-            const [activeTab, setActiveTab] = useState('this-week');
+            const [activeTab, setActiveTab] = useState('this-week'); 
             const [isGenerating, setIsGenerating] = useState(false);
             const [weeklyReport, setWeeklyReport] = useState(null);
             const [showReport, setShowReport] = useState(false);
@@ -132,132 +132,132 @@
 
             // 核心维度定义
             const dimensions = {
-                Industry: { label: "产业/品牌动态", icon: "公文包", color: "text-blue-600", bg: "bg-blue-50",
-                    链接：[
-                        { name: "BoF", url: "https://www.businessoffashion.com", desc: "全球时尚产业的《内部参考书》" },
-                        { name: "Vogue Business", url: "https://www.voguebusiness.com", desc: "商业+文化交叉观察" },
+                industry: { label: "产业 / 品牌动态", icon: "briefcase", color: "text-blue-600", bg: "bg-blue-50", 
+                    links: [
+                        { name: "BoF", url: "https://www.businessoffashion.com", desc: "全球时尚产业的“内部参考书”" },
+                        { name: "Vogue Business", url: "https://www.voguebusiness.com", desc: "商业 + 文化交叉观察" },
                         { name: "WWD", url: "https://wwd.com", desc: "行业快讯与交易层信息源" }
                     ]
                 },
-                runway: { label: "秀场/系列", icon: "clapperboard", color: "text-purple-600", bg: "bg-purple-50",
-                    链接：[
+                runway: { label: "秀场 / 系列", icon: "clapperboard", color: "text-purple-600", bg: "bg-purple-50", 
+                    links: [
                         { name: "Vogue Runway", url: "https://www.vogue.com/runway", desc: "全球系统秀场档案库" },
-                        { name: "SHOWstudio", url: "https://showstudio.com", desc: "影像×实验×身体表达" },
+                        { name: "SHOWstudio", url: "https://showstudio.com", desc: "影像 × 实验 × 身体表达" },
                         { name: "Dazed", url: "https://www.dazeddigital.com", desc: "青年文化与前沿审美" }
                     ]
                 },
-                culture: { label: "文化事件/展览", icon: "地标", color: "text-amber-600", bg: "bg-amber-50",
-                    链接：[
+                culture: { label: "文化事件 / 展览", icon: "landmark", color: "text-amber-600", bg: "bg-amber-50", 
+                    links: [
                         { name: "Met Museum", url: "https://www.metmuseum.org", desc: "时尚的历史化视角" },
                         { name: "V&A", url: "https://www.vam.ac.uk", desc: "设计史权威" },
-                        { name: "Artforum", url: "https://www.artforum.com", desc: "当代艺术中的身体动物" }
+                        { name: "Artforum", url: "https://www.artforum.com", desc: "当代艺术中的身体议题" }
                     ]
                 },
-                tech: { label: "科技 / AI / 材料", icon: "cpu", color: "text-emerald-600", bg: "bg-emerald-50",
-                    链接：[
+                tech: { label: "科技 / AI / 材料", icon: "cpu", color: "text-emerald-600", bg: "bg-emerald-50", 
+                    links: [
                         { name: "Wired", url: "https://www.wired.com", desc: "科技对身体的影响" },
                         { name: "Dezeen", url: "https://www.dezeen.com", desc: "设计 × 材料 × 技术" },
-                        { name: "时尚科技新闻", url: "https://fashiontechnews.jp", desc: "垂直工具追踪" }
+                        { name: "Fashion Tech News", url: "https://fashiontechnews.jp", desc: "垂直工具追踪" }
                     ]
                 },
-                trend: { label: "流行趋势", icon: "trending-up", color: "text-rose-600", bg: "bg-rose-50",
-                    链接：[
+                trends: { label: "流行趋势", icon: "trending-up", color: "text-rose-600", bg: "bg-rose-50", 
+                    links: [
                         { name: "WGSN", url: "https://www.wgsn.com", desc: "中长期趋势判断与预测性建模" },
                         { name: "Lyst Index", url: "https://www.lyst.com/data/the-lyst-index/", desc: "消费者真实搜索与购买行为风向标" },
-                        { name: "Highsnobiety", url: "https://www.highsnobiety.com", desc: "趋势源头阶段（街头/青年文化）" },
-                        { name: "iD", url: "https://id.co", desc: "审美价值观层面的趋势" },
-                        { name: "Pinterest Predicts", url: "https://business.pinterest.com/pinterest-predicts/", desc: "全球行为搜索中的早期趋势信号" }
+                        { name: "Highsnobiety", url: "https://www.highsnobiety.com", desc: "趋势源头阶段（街头 / 青年文化）" },
+                        { name: "i-D", url: "https://i-d.co", desc: "审美价值观层面的趋势" },
+                        { name: "Pinterest Predicts", url: "https://business.pinterest.com/pinterest-predicts/", desc: "全球搜索行为中的早期趋势信号" }
                     ]
                 }
             };
 
             // 本周情报数据
             const currentWeekIntel = [
-                { id: 1, type: 'industry', source: 'BoF', title: 'LVMH重心北：重组北美市场管理架构',logic: '对抗权力消费，通过高度集权的垂直管理结构实现意愿转移“瞬间”。', url: 'https://www.businessoffashion.com' },
-                { id: 2, type: 'runway', source: 'SHOWstudio', title: '2026季：解构对主义标准身体的再次三次',logic: '身体再次成为实验现场，通过极端不纯粹的剪裁挑战传统的审美权力分配。', url: 'https://showstudio.com' },
-                { id: 3, type: 'culture', source: 'V&A', title: '《设计的回声》：时尚叙述中的全球史视角重构',logic: '强调服装的历史回声如何当代的文化形态，时尚被正式写入公共文化体系。', url: 'https://www.vam.ac.uk' },
-                { id: 4, type: 'tech', source: 'Wired', title: 'AI虚拟模型的数字孪生与劳动力身份权博弈',logic: '数字身份权立法正在形成劳动力阶层：当边界模糊，品牌如何拥有意识形态主权？', url: 'https://www.wired.com' },
-                { id: 5, type: 'trends', source: 'WGSN', title: '情绪建模趋势：从“防御性穿着”到“感知增强”面料',logic: '趋势不再是颜色，而是心理情绪的预测性建模。消费者的不安全感正在转变为对面料功能性的极度依赖。', url: 'https://www.wgsn.com' }
+                { id: 1, type: 'industry', source: 'BoF', title: 'LVMH 权力重心北移：重组北美市场管理架构', logic: '应对消费放缓，通过高度集权的垂直管理结构实现意志“瞬间穿透”。', url: 'https://www.businessoffashion.com' },
+                { id: 2, type: 'runway', source: 'SHOWstudio', title: '2026 季：解构主义对标准身材的再次驱逐', logic: '身体再次成为实验现场，通过极端不对称剪裁挑战传统的审美权力分配。', url: 'https://showstudio.com' },
+                { id: 3, type: 'culture', source: 'V&A', title: '《设计的回声》：时尚叙事中的全球史视角重构', logic: '强调服装的历史回声如何决定当代的文化认同，时尚被正式写入公共文化体系。', url: 'https://www.vam.ac.uk' },
+                { id: 4, type: 'tech', source: 'Wired', title: 'AI 虚拟模特的数字孪生与劳动力身份权博弈', logic: '数字身份权立法正在重塑劳动力阶级：当边界模糊，品牌如何拥有审美主权？', url: 'https://www.wired.com' },
+                { id: 5, type: 'trends', source: 'WGSN', title: '情绪建模趋势：从“防御性穿着”到“感知增强”面料', logic: '趋势不再是颜色，而是心理情绪的预测性建模。消费者的不安全感正在转化为对面料功能性的极端依赖。', url: 'https://www.wgsn.com' }
             ];
 
             // 历周归档数据
             const pastArchive = [
                 {
                     weekId: '2026-W01',
-                    期间：'01.01 - 01.05'，
-                    theme: '开年资本布局：从硬件扩张到合规防御',
-                    摘要: '本周重点关注 LVMH 在制表领域的权力集中，以及欧盟新环保法案对供应链逻辑的探讨。',
-                    英特尔：[
-                        { id: 101, type: 'industry', source: 'WWD', title: '硬奢市场的权力游戏：LVMH整合制表部门',logic: '通过垂直整合提升品牌溢价能力，审视高端消费市场的转变。', url: 'https://wwd.com' },
-                        { id: 102, type: 'runway', source: 'Vogue Runway', title: '2026早春系列：实用主义与防御性美学的结合',logic: '服装作为一种“生存装备”，反映了社会心理的防御机制。', url: 'https://www.vogue.com/runway' },
-                        { id: 103, type: 'culture', source: 'Met Museum', title: '时尚与合规：历史视角下的行业规范变革',logic: '探讨成为规则如何塑造审美，以及法律边界如何设计的灵感。', url: 'https://www.metmuseum.org' },
-                        { id: 104, type: 'tech', source: 'Dezeen', title: '生物合成材料的商业化元年',logic: '实验室材料正式进入奢侈品供应链，可持续技术的新阶段。', url: 'https://www.dezeen.com' },
-                        { id: 105, type: 'trends', source: 'WGSN', title: '2026核心色彩预测：数字蓝与生物绿的组成',logic: '预测性建模显示，科技与融合的将主导下一季的视觉自然语言。', url: 'https://www.wgsn.com' }
+                    period: '01.01 - 01.05',
+                    theme: '开年资本布局：从硬奢扩张到合规防御',
+                    summary: '本周重点聚焦于 LVMH 在制表领域的权力集中，以及欧盟新环保法案对供应链逻辑的穿透。',
+                    intel: [
+                        { id: 101, type: 'industry', source: 'WWD', title: '硬奢市场的权力游戏：LVMH 整合制表部门', logic: '通过垂直整合提升品牌溢价能力，应对高端消费市场的波动。', url: 'https://wwd.com' },
+                        { id: 102, type: 'runway', source: 'Vogue Runway', title: '2026 早春系列：实用主义与防御性美学的结合', logic: '服装作为一种“生存装备”，反映了社会心理的防御机制。', url: 'https://www.vogue.com/runway' },
+                        { id: 103, type: 'culture', source: 'Met Museum', title: '时尚与合规：历史视角下的行业规范演变', logic: '探讨规则如何塑造审美，以及法律边界如何成为设计的灵感。', url: 'https://www.metmuseum.org' },
+                        { id: 104, type: 'tech', source: 'Dezeen', title: '生物合成材料的商业化元年', logic: '实验室材料正式进入奢侈品供应链，标志着可持续技术的新阶段。', url: 'https://www.dezeen.com' },
+                        { id: 105, type: 'trends', source: 'WGSN', title: '2026 核心色彩预测：数字蓝与生物绿的交织', logic: '预测性建模显示，科技与自然的融合将主导下一季的视觉语言。', url: 'https://www.wgsn.com' }
                     ],
-                    报告：`[PullQuote：2026年的时尚序，不是由裙摆的长度决定，而是由资本的厚度与合的规边界所界定。]
+                    report: `[PullQuote: 2026年的时尚序幕，并非由裙摆的长度决定，而是由资本的厚度与合规的边界所界定。]
 
-【插图：未来主义风格的奢华腕表机芯与数字数据流融合，采用深海军蓝和银色调。】
+[Illustration: A futuristic luxury watch mechanism merging with digital data streams, dark navy and silver tones.]
 
 卷首语：
-2026年的第一周，时尚产业提出了极为矛盾的张力。一方面是奢侈品牌在硬奢领域的前瞻性拓展，试图通过掌握时间的精准度来锁定永恒的价值；另一方面又面临迫切严苛的全球合规环境，品牌不得不建立起体系的防御。
+在2026年的第一周，时尚产业呈现出一种极度矛盾的张力。一方面是奢侈品巨头在硬奢领域的激进扩张，试图通过掌握时间的精度（制表）来锁定永恒的价值；另一方面则是面对日益严苛的全球合规环境，品牌不得不建立起深厚的防御体系。
 
-权力产业场：
-LVMH对制表部门的重组不仅是人事频频，更是权力的再次集中。在不确定的地缘政治环境下，垂直整合供应链已成为大家的机构。（参考：WWD）
+产业权力场：
+LVMH对制表部门的重组不仅是人事变动，更是权力的再次集中。在不确定的地缘政治环境下，垂直整合供应链已成为巨头们的共识。(Ref: WWD)
 
-【插图：一场高级时装秀，模特身着结构严谨、如同盔甲般的服装，背景是工业风的秀场。】
+[Illustration: A high-fashion runway show featuring models in structured, armor-like garments, industrial setting.]
 
-身体叙述：
-秀场上，我们看到了一种“防御性美学”的兴起。服装不再装饰，而是作为一种保护壳，应对外部环境的感动。（参考：Vogue Runway）
+身体叙事：
+秀场上，我们看到了一种“防御性美学”的兴起。服装不再仅仅是装饰，而是作为一种保护壳，应对外部环境的剧烈波动。(Ref: Vogue Runway)
 
 技术疆界：
-生物合成材料的商业化应用从实验室走向了工厂接入。欧盟新的环保票据的仓库技术，如品牌必须利用数字实现全托盘的可追溯性。（参考：Dezeen）
+生物合成材料的商业化应用从实验室走向了工厂前端。欧盟新环保法案的穿透力，迫使品牌必须利用数字技术实现全链路的可追溯性。(Ref: Dezeen)
 
 流行趋势：
-WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色彩主义上，数字蓝与生物绿的本体反映了人类对虚拟与现实边界的重新思考。（参考：WGSN）
+WGSN的预测性建模指出，2026年将是“数字自然主义”的爆发年。色彩上，数字蓝与生物绿的交织反映了人类对虚拟与现实边界的重新思考。(Ref: WGSN)
 
 结语：
-世界格局着眼，2026年将是时尚产业“向内求索”的一年。在资本与规则的博弈中，唯有最敏捷的体能在复杂的权力场中生存。
+开年的布局预示着，2026年将是时尚产业“向内求索”的一年。在资本与规则的博弈中，唯有最敏捷的身体才能在复杂的权力场中生存。`
                 }
             ];
 
             const generateWeeklyBrief = async () => {
-                如果 (!apiKey) {
+                if (!apiKey) {
                     setError("请先在设置中输入 DeepSeek API Key");
-                    返回;
+                    return;
                 }
 
                 setIsGenerating(true);
                 setError(null);
 
-                const systemPrompt = `您是一位享誉国际的时尚社会学家、产业分析师和文化策展人。
-                请根据提供的五个维度信息，生成一份名为《一周时尚报刊》的深度报告。
+                const systemPrompt = `你是一名享誉国际的时尚社会学家、产业分析师和文化策展人。
+                请基于提供的五个维度资讯，生成一份名为《一周时尚报刊》的深度报告。
                 要求：
-                1. 学术语境：使用专业、辛辣且具有边界力的语言。讨论资本关联、权力结构、身体政治和技术边界。
+                1. 学术语境：使用专业、辛辣且具有穿透力的语言。讨论资本关联、权力结构、身体政治和技术边界。
                 2. 杂志排版指令：在文中适当位置插入 [PullQuote: 引用的金句] 和 [Illustration: 描述插图内容]。
                 3. 五大维度深度结合（产业、秀场、文化、科技、流行趋势）。
-                4. 引用引用： 契约信源。
-                5.字数约1000字，分为“卷首语”、“产业权力场”、“身体叙述”、“技术疆界”、“流行趋势”及“结语”。`;
+                4. 引用引用：注明信源。
+                5. 字数约 1000 字，分为“卷首语”、“产业权力场”、“身体叙事”、“技术疆界”、“流行趋势”及“结语”。`;
                 
                 const userQuery = `本周核心动态：\n${currentWeekIntel.map(n => `[${n.source}] ${n.title}`).join('\n')}`;
 
-                尝试 {
+                try {
                     const response = await fetch(DEEPSEEK_API_URL, {
-                        方法：'POST'，
-                        标题：{
+                        method: 'POST',
+                        headers: { 
                             'Content-Type': 'application/json',
-                            '授权': `Bearer ${apiKey}`
+                            'Authorization': `Bearer ${apiKey}`
                         },
                         body: JSON.stringify({
-                            模型：DEEPSEEK_MODEL，
-                            消息：[
+                            model: DEEPSEEK_MODEL,
+                            messages: [
                                 { role: "system", content: systemPrompt },
-                                { role: "用户", content: userQuery }
+                                { role: "user", content: userQuery }
                             ],
-                            流：false
+                            stream: false
                         })
                     });
 
-                    如果 (!response.ok) {
+                    if (!response.ok) {
                         const errorData = await response.json().catch(() => ({}));
                         throw new Error(errorData.error?.message || `API 请求失败: ${response.status}`);
                     }
@@ -265,27 +265,27 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                     const result = await response.json();
                     const content = result.choices?.[0]?.message?.content;
                     
-                    如果 (!content) {
-                        throw new Error("API返回内容为空");
+                    if (!content) {
+                        throw new Error("API 返回内容为空");
                     }
 
-                    设置每周报告(内容);
-                    设置显示报告(true);
+                    setWeeklyReport(content);
+                    setShowReport(true);
                 } catch (err) {
                     console.error("生成失败", err);
                     setError(`生成失败: ${err.message}`);
-                } 最后 {
+                } finally {
                     setIsGenerating(false);
                 }
             };
 
             const handleApiKeyChange = (e) => {
                 const val = e.target.value;
-                设置 API 密钥(val);
+                setApiKey(val);
                 localStorage.setItem('deepseek_api_key', val);
             };
 
-            // 动态获取Unsplash图片
+            // 动态获取 Unsplash 图片
             const FashionImage = ({ description }) => {
                 const [imgUrl, setImgUrl] = useState(null);
                 const [loading, setLoading] = useState(true);
@@ -299,75 +299,75 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                     const img = new Image();
                     img.src = url;
                     img.onload = () => {
-                        设置图像 URL(url);
-                        设置加载状态为false；
+                        setImgUrl(url);
+                        setLoading(false);
                     };
                     img.onerror = () => {
                         setImgUrl("https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=80");
-                        设置加载状态为false；
+                        setLoading(false);
                     };
-                }， [描述]）;
+                }, [description]);
 
-                返回 （
+                return (
                     <div className="illustration-container overflow-hidden">
                         <div className={`w-full h-[400px] bg-slate-100 rounded-lg overflow-hidden relative ${loading ? 'animate-pulse' : ''}`}>
                             {imgUrl && (
-                                <img
-                                    src={imgUrl}
-                                    alt={描述}
+                                <img 
+                                    src={imgUrl} 
+                                    alt={description} 
                                     className="w-full h-full object-cover transition-opacity duration-1000"
                                     style={{ opacity: loading ? 0 : 1 }}
                                 />
                             )}
-                            {加载中 ＆＆ （
+                            {loading && (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <Icon name="loader-2" className="w-8 h-8 animate-spin text-slate-300" />
                                 </div>
                             )}
                         </div>
                         <p className="mt-4 text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] italic">
-                            视觉智能 // {描述}
+                            Visual Intelligence // {description}
                         </p>
                     </div>
-                ）；
+                );
             };
 
             // 处理报刊文本中的插图和引言样式
             const renderMagazineContent = (text) => {
-                如果 (!text) 返回 null；
+                if (!text) return null;
                 const parts = text.split(/(\[PullQuote:.*?\]|\[Illustration:.*?\])/);
-                返回 parts.map((part, index) => {
-                    如果 (part.startsWith('[PullQuote:')) {
+                return parts.map((part, index) => {
+                    if (part.startsWith('[PullQuote:')) {
                         return <div key={index} className="pull-quote">{part.replace('[PullQuote:', '').replace(']', '')}</div>;
                     } else if (part.startsWith('[Illustration:')) {
                         const desc = part.replace('[Illustration:', '').replace(']', '');
-                        返回 <FashionImage key={index} description={desc} />;
-                    } 别的 {
-                        返回 <p key={index} className="mb-6 leading-relaxed text-justify whitespace-pre-wrap">{part}</p>;
+                        return <FashionImage key={index} description={desc} />;
+                    } else {
+                        return <p key={index} className="mb-6 leading-relaxed text-justify whitespace-pre-wrap">{part}</p>;
                     }
                 });
             };
 
-            const ReportView = ({ isFull = false, content = weekReport, title = "一周时尚报刊", date = "2026.01.09" }) => (
+            const ReportView = ({ isFull = false, content = weeklyReport, title = "一周时尚报刊", date = "2026.01.09" }) => (
                 <div className={`${isFull ? 'fullscreen-content' : 'bg-white h-[calc(100vh-180px)] rounded-[50px] border border-slate-100 shadow-2xl overflow-hidden flex flex-col animate-magazine text-left'}`}>
                     <div className={`bg-black text-white ${isFull ? 'p-20 rounded-[50px] mb-10' : 'p-12'} relative overflow-hidden`}>
                         <div className="relative z-10 flex justify-between items-end">
                             <div>
                                 <div className="flex items-center gap-4 mb-8">
-                                    <span className="bg-white/10px-3py-1roundedtext-[9px]font-blackuppercasetracking-[0.4em]borderborder-white/20">决策智能</span>
-                                    全球调度 // {date}</span>
+                                    <span className="bg-white/10 px-3 py-1 rounded text-[9px] font-black uppercase tracking-[0.4em] border border-white/20">Decision Intelligence</span>
+                                    <span className="text-white/40 font-mono text-[9px] uppercase tracking-widest">Global Dispatch // {date}</span>
                                 </div>
                                 <h2 className={`${isFull ? 'text-8xl' : 'text-6xl'} font-black serif-title leading-[1.1] mb-2`}>{title}</h2>
-                                <p className={`${isFull ? 'text-2xl' : 'text-lg'} font-medium italic text-white/60 font-serif`}>行业逻辑与文化转变的深度分析</p>
+                                <p className={`${isFull ? 'text-2xl' : 'text-lg'} font-medium italic text-white/60 font-serif`}>Deep Analysis of Industry Logic & Cultural Shift</p>
                             </div>
                             <div className="flex gap-4">
                                 {!isFull && (
                                     <button onClick={() => setIsFullscreen(true)} className="bg-white/10 text-white p-4 rounded-full hover:bg-white/20 transition-colors border border-white/20"><Icon name="maximize-2" className="w-6 h-6" /></button>
                                 )}
                                 <button onClick={() => {
-                                    如果 (isFull) 设置 IsFullscreen(false);
-                                    别的 {
-                                        设置显示报表(false);
+                                    if (isFull) setIsFullscreen(false);
+                                    else {
+                                        setShowReport(false);
                                         setSelectedArchive(null);
                                     }
                                 }} className="bg-white text-black p-4 rounded-full shadow-2xl hover:bg-slate-200 transition-colors"><Icon name="x" className="w-6 h-6" /></button>
@@ -380,12 +380,12 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                             {renderMagazineContent(content)}
                         </div>
                         <div className="mt-20 pt-10 border-t border-slate-100 flex justify-between items-center opacity-30">
-                            <span className="text-[10px] font-black uppercase tracking-[0.5em]">简报结束</span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.5em]">学术诚信 // 时尚情报</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.5em]">End of Briefing</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.5em]">Academic Integrity // Fashion Intelligence</span>
                         </div>
                     </div>
                 </div>
-            ）；
+            );
 
             const DashboardArea = ({ intelData, weekTitle, subTitle, isArchive = false }) => (
                 <div className={`${(showReport || isArchive) ? 'col-span-4' : 'col-span-8'} transition-all duration-700 space-y-12 overflow-y-auto no-scrollbar pb-20`}>
@@ -408,7 +408,7 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                                     <div key={item.id} className="group bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm hover:border-black transition-all duration-500 cursor-pointer">
                                         <div className="flex justify-between items-start mb-4">
                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.source}</span>
-                                            <a href={item.url} target="_blank" className="text-[10px] font-bold text-blue-600 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">阅读更多 <Icon name="external-link" className="w-3 h-3" /></a>
+                                            <a href={item.url} target="_blank" className="text-[10px] font-bold text-blue-600 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">READ MORE <Icon name="external-link" className="w-3 h-3" /></a>
                                         </div>
                                         <h4 className="font-bold text-xl mb-3 leading-snug">{item.title}</h4>
                                         <p className="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border-l-4 border-slate-200 font-medium italic leading-relaxed">{item.logic}</p>
@@ -422,7 +422,7 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                                         <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">{l.name}</p>
                                         <p className="text-[9px] text-slate-400 mt-1 line-clamp-2">{l.desc}</p>
                                         <div className="flex justify-end mt-2">
-                                            <button onClick={() => window.open(l.url, '_blank')} className="text-[8px] font-black text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 uppercase">前往源代码 <Icon name="external-link" className="w-2 h-2" /></button>
+                                            <button onClick={() => window.open(l.url, '_blank')} className="text-[8px] font-black text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 uppercase">Go to source <Icon name="external-link" className="w-2 h-2" /></button>
                                         </div>
                                     </div>
                                 ))}
@@ -430,36 +430,36 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                         </section>
                     ))}
                 </div>
-            ）；
+            );
 
-            返回 （
+            return (
                 <div className="min-h-screen flex flex-col">
                     {isFullscreen && (
                         <div className="fullscreen-overlay no-scrollbar">
-                            <ReportView isFull={true} content={selectedArchive ? selectedArchive.report :weeklyReport} title={selectedArchive ? "往期归档报刊" : "一周时尚报刊"} date={selectedArchive ? selectedArchive.period : "2026.01.09"} />
+                            <ReportView isFull={true} content={selectedArchive ? selectedArchive.report : weeklyReport} title={selectedArchive ? "往期归档报刊" : "一周时尚报刊"} date={selectedArchive ? selectedArchive.period : "2026.01.09"} />
                         </div>
                     )}
 
-                    {/* 标题 */}
+                    {/* Header */}
                     <header className="bg-white border-b border-slate-100 sticky top-0 z-50 px-8 py-4">
                         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
                             <div className="flex items-center space-x-4 cursor-pointer" onClick={() => { setActiveTab('this-week'); setShowReport(false); setSelectedArchive(null); }}>
                                 <div className="bg-black text-white p-2 rounded-xl"><Icon name="layers" className="w-6 h-6" /></div>
                                 <div>
-                                    <h1 className="text-xl font-black track-tighter serif-title uppercase">一周时尚资讯速报</h1>
-                                    <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">每周时尚简报</p>
+                                    <h1 className="text-xl font-black tracking-tighter serif-title uppercase">一周时尚资讯速报</h1>
+                                    <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">Weekly Fashion Brief</p>
                                 </div>
                             </div>
                             
                             <nav className="flex space-x-10 items-center">
-                                <button onClick={() => { setActiveTab('this-week'); setShowReport(false); setSelectedArchive(null); }} className={`text-sm font-black transition-all tr​​acking-widest ${activeTab === 'this-week' && !showReport ? 'text-black border-b-2 border-black pb-1' : 'text-slate-300 hover:text-black'}`}>本周查看</button>
-                                <button onClick={() => { setActiveTab('past-weeks'); setShowReport(false); setSelectedArchive(null); }} className={`text-sm font-black transition-all tr​​acking-widest ${activeTab === 'past-weeks' ? 'text-black border-b-2 border-black pb-1' : 'text-slate-300 hover:text-black'}`}>历周归档</button>
+                                <button onClick={() => { setActiveTab('this-week'); setShowReport(false); setSelectedArchive(null); }} className={`text-sm font-black transition-all tracking-widest ${activeTab === 'this-week' && !showReport ? 'text-black border-b-2 border-black pb-1' : 'text-slate-300 hover:text-black'}`}>本周看板</button>
+                                <button onClick={() => { setActiveTab('past-weeks'); setShowReport(false); setSelectedArchive(null); }} className={`text-sm font-black transition-all tracking-widest ${activeTab === 'past-weeks' ? 'text-black border-b-2 border-black pb-1' : 'text-slate-300 hover:text-black'}`}>历周归档</button>
                                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                                     <Icon name="key" className="w-3 h-3 text-slate-400" />
-                                    <输入
-                                        type="密码"
-                                        占位符="DeepSeek API 密钥"
-                                        值={apiKey}
+                                    <input 
+                                        type="password" 
+                                        placeholder="DeepSeek API Key" 
+                                        value={apiKey}
                                         onChange={handleApiKeyChange}
                                         className="bg-transparent text-[10px] outline-none w-32 font-mono"
                                     />
@@ -467,62 +467,62 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                             </nav>
 
                             <button onClick={generateWeeklyBrief} disabled={isGenerating} className="bg-black text-white px-8 py-2.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-3 hover:bg-slate-800 transition-all disabled:opacity-50">
-                                {isGenerating ? <Icon name="loader-2" className="animate-spin" /> : <Icon name="sparkles" />}
+                                {isGenerating ? <Icon name="loader-2" className="animate-spin" /> : <Icon name="sparkles" />} 
                                 生成本周报刊
                             </button>
                         </div>
                     </header>
 
-                    {错误 ＆＆ （
+                    {error && (
                         <div className="bg-red-50 border-b border-red-100 px-8 py-3 text-red-600 text-xs font-bold flex items-center justify-center gap-2">
                             <Icon name="alert-circle" className="w-4 h-4" />
-                            {错误}
+                            {error}
                             <button onClick={() => setError(null)} className="ml-4 underline">关闭</button>
                         </div>
                     )}
 
                     <main className="flex-1 max-w-[1400px] mx-auto w-full px-8 py-10">
-                        {activeTab === '本周' ? (
+                        {activeTab === 'this-week' ? (
                             <div className="grid grid-cols-12 gap-10 h-full text-left">
-                                <仪表盘区域
-                                    intelData={currentWeekIntel}
-                                    weekTitle="2026 W02"
-                                    副标题“理解当代时尚的观察框架”
+                                <DashboardArea 
+                                    intelData={currentWeekIntel} 
+                                    weekTitle="2026 W02" 
+                                    subTitle="Observation Framework for Understanding Contemporary Fashion" 
                                 />
 
-                                {/*右侧：监测面板或报刊视图*/}
+                                {/* 右侧：监测面板或报刊视图 */}
                                 <div className={`${showReport ? 'col-span-8' : 'col-span-4'} transition-all duration-700 h-full`}>
                                     {showReport ? (
-                                        <报表视图 />
-                                    ): (
+                                        <ReportView />
+                                    ) : (
                                         <div className="space-y-6 animate-fade-in text-left">
-                                            {/*动态监测看板*/}
+                                            {/* 动态监测看板 */}
                                             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden">
                                                 <div className="flex items-center justify-between mb-8">
                                                     <h3 className="text-sm font-black flex items-center gap-2 opacity-50 uppercase tracking-[0.2em]"><Icon name="activity" /> 系统监测</h3>
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                                        <span className="text-[9px] font-black text-green-600 uppercase">实时跟踪</span>
+                                                        <span className="text-[9px] font-black text-green-600 uppercase">Live Tracking</span>
                                                     </div>
                                                 </div>
                                                 <div className="space-y-6">
                                                     {Object.entries(dimensions).map(([key, dim]) => {
                                                         const count = currentWeekIntel.filter(i => i.type === key).length;
-                                                        const percentage = Math.min((count / 3) * 100, 100);
-                                                        返回 （
+                                                        const percentage = Math.min((count / 3) * 100, 100); 
+                                                        return (
                                                             <div key={key} className="space-y-2">
                                                                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
                                                                     <span className="text-slate-400">{dim.label}</span>
                                                                     <span className={count > 0 ? "text-black" : "text-slate-300"}>{count > 0 ? `${count} CAPTURED` : 'SCANNING'}</span>
                                                                 </div>
                                                                 <div className="w-full bg-slate-50 h-2 rounded-full overflow-hidden">
-                                                                    <div
-                                                                        className={`h-full tr​​ansition-all duration-1000 ease-out ${count > 0 ? 'bg-black' : 'bg-slate-100'}`}
+                                                                    <div 
+                                                                        className={`h-full transition-all duration-1000 ease-out ${count > 0 ? 'bg-black' : 'bg-slate-100'}`} 
                                                                         style={{ width: `${percentage}%` }}
                                                                     ></div>
                                                                 </div>
                                                             </div>
-                                                        ）；
+                                                        );
                                                     })}
                                                 </div>
                                             </div>
@@ -533,33 +533,33 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                                                 </div>
                                                 <div>
                                                     <h3 className="text-2xl font-black serif-title mb-2">生成深度报刊</h3>
-                                                    <p className="text-white/50 text-xs font-bold uppercase tracking-widest">生成每周学术简报</p>
+                                                    <p className="text-white/50 text-xs font-bold uppercase tracking-widest">Generate Weekly Academic Briefing</p>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
-                        ): (
+                        ) : (
                             <div className="grid grid-cols-12 gap-10 h-full text-left">
                                 {selectedArchive ? (
-                                    <仪表盘区域
-                                        intelData={selectedArchive.intel}
-                                        weekTitle={selectedArchive.weekId}
-                                        副标题“历史情报档案与趋势分析”
+                                    <DashboardArea 
+                                        intelData={selectedArchive.intel} 
+                                        weekTitle={selectedArchive.weekId} 
+                                        subTitle="Historical Intelligence Archive & Trend Analysis" 
                                         isArchive={true}
                                     />
-                                ): (
+                                ) : (
                                     <div className="col-span-12 space-y-12">
                                         <div className="flex flex-col gap-2 mb-10">
-                                            <h2 className="text-6xl font-black track-tighter serif-title uppercase">历周归档</h2>
-                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm italic">历史情报档案与趋势分析</p>
+                                            <h2 className="text-6xl font-black tracking-tighter serif-title uppercase">历周归档</h2>
+                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm italic">Historical Intelligence Archive & Trend Analysis</p>
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                             {pastArchive.map(archive => (
-                                                <div
-                                                    key={archive.weekId}
+                                                <div 
+                                                    key={archive.weekId} 
                                                     onClick={() => setSelectedArchive(archive)}
                                                     className="group bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer relative overflow-hidden"
                                                 >
@@ -597,7 +597,7 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                         )}
                     </main>
                 </div>
-            ）；
+            );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
