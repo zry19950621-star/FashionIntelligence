@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FashionIntelligence - 产业情报决策系统</title>
+    <title>一周时尚资讯速报 - Weekly Fashion Brief</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -14,42 +14,72 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap' );
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+        
+        body { font-family: 'Inter', -apple-system, sans-serif; }
+        .serif-title { font-family: 'Noto Serif SC', serif; }
+        
         .selection-blue::selection { background-color: #dbeafe; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .annual-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .fade-in-up { animation: fadeInUp 0.5s ease-out; }
+        .annual-gradient { background: linear-gradient(135deg, #020617 0%, #1e293b 100%); }
+        
+        /* 杂志风格样式 */
+        .magazine-dropcap::first-letter {
+            float: left;
+            font-size: 5rem;
+            line-height: 4rem;
+            padding-top: 0.5rem;
+            padding-right: 0.8rem;
+            font-weight: 900;
+            color: #000;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .magazine-column {
+            column-count: 1;
+        }
+        @media (min-width: 1024px) {
+            .magazine-column { column-count: 2; column-gap: 3rem; }
+        }
+
+        .pull-quote {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-style: italic;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 1.5rem 0;
+            margin: 2rem 0;
+            line-height: 1.4;
+            color: #1a1a1a;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .illustration-container {
+            margin: 2rem 0;
+            background: #f0f0f0;
+            border-radius: 4px;
+            padding: 1rem;
+            text-align: center;
+        }
+
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .animate-magazine { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
-<body class="bg-[#F8FAFC] selection-blue">
+<body class="bg-[#F6F6F6] selection-blue">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
 
-        // ==========================================
-        // 配置 DeepSeek API
-        // ==========================================
-        const DEEPSEEK_API_KEY = "sk-3d7832ebaa0b4e599d6f58f0fb159814"; // <--- 请在此处填入您的 DeepSeek API Key
-        const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
-        const DEEPSEEK_MODEL = "deepseek-chat";
-
-        /**
-         * 工具函数：获取 ISO 周数
-         */
-        const getISOWeek = (d ) => {
-            const date = new Date(d.getTime());
-            date.setHours(0, 0, 0, 0);
-            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-            const week1 = new Date(date.getFullYear(), 0, 4);
-            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-        };
+        const apiKey = ""; 
+        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
 
         const Icon = ({ name, className = "w-4 h-4", strokeWidth = 2 }) => {
             const iconRef = useRef(null);
@@ -71,318 +101,328 @@
         };
 
         const App = () => {
-            const [currentTime, setCurrentTime] = useState(new Date());
             const [activeTab, setActiveTab] = useState('this-week'); 
             const [isGenerating, setIsGenerating] = useState(false);
-            const [error, setError] = useState(null);
-            const [copyFeedback, setCopyFeedback] = useState(null);
             const [weeklyReport, setWeeklyReport] = useState(null);
             const [showReport, setShowReport] = useState(false);
 
-            useEffect(() => {
-                const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-                return () => clearInterval(timer);
-            }, []);
-
-            const currentYear = currentTime.getFullYear();
-            const currentWeek = useMemo(() => getISOWeek(currentTime), [currentTime]);
+            // 核心维度与信源定义
+            const dimensions = {
+                industry: { label: "产业 / 品牌动态", icon: "briefcase", color: "text-blue-600", bg: "bg-blue-50", 
+                    links: [
+                        { name: "BoF", url: "https://www.businessoffashion.com", desc: "全球时尚产业的“内部参考书”" },
+                        { name: "Vogue Business", url: "https://www.voguebusiness.com", desc: "商业 + 文化交叉观察" },
+                        { name: "WWD", url: "https://wwd.com", desc: "行业快讯与交易层信息源" }
+                    ]
+                },
+                runway: { label: "秀场 / 系列", icon: "clapperboard", color: "text-purple-600", bg: "bg-purple-50", 
+                    links: [
+                        { name: "Vogue Runway", url: "https://www.vogue.com/runway", desc: "全球系统秀场档案库" },
+                        { name: "SHOWstudio", url: "https://showstudio.com", desc: "影像 × 实验 × 身体表达" },
+                        { name: "Dazed", url: "https://www.dazeddigital.com", desc: "青年文化与前沿审美" }
+                    ]
+                },
+                culture: { label: "文化事件 / 展览", icon: "landmark", color: "text-amber-600", bg: "bg-amber-50", 
+                    links: [
+                        { name: "Met Museum", url: "https://www.metmuseum.org", desc: "时尚的历史化视角" },
+                        { name: "V&A", url: "https://www.vam.ac.uk", desc: "设计史权威" },
+                        { name: "Artforum", url: "https://www.artforum.com", desc: "当代艺术中的身体议题" }
+                    ]
+                },
+                tech: { label: "科技 / AI / 材料", icon: "cpu", color: "text-emerald-600", bg: "bg-emerald-50", 
+                    links: [
+                        { name: "Wired", url: "https://www.wired.com", desc: "科技对身体的影响" },
+                        { name: "Dezeen", url: "https://www.dezeen.com", desc: "设计 × 材料 × 技术" },
+                        { name: "Fashion Tech News", url: "https://fashiontechnews.jp", desc: "垂直工具追踪" }
+                    ]
+                },
+                social: { label: "社会议题", icon: "users", color: "text-rose-600", bg: "bg-rose-50", 
+                    links: [
+                        { name: "The Guardian", url: "https://www.theguardian.com/fashion", desc: "公共议题导向" },
+                        { name: "NYT Style", url: "https://www.nytimes.com/section/style", desc: "主流政治讨论" },
+                        { name: "i-D", url: "https://i-d.co", desc: "边缘与身份流动" }
+                    ]
+                }
+            };
 
             const currentWeekIntel = [
-                { id: 201, date: '01.09', source: 'BoF', category: '资本运作', title: '开云集团 (Kering) 宣布减持旗下某设计师品牌，转而增持自动化供应链技术公司。', url: 'https://www.businessoffashion.com/news/luxury/kering-automation-investment' },
-                { id: 202, date: '01.08', source: 'Vogue Business', category: '合规逻辑', title: '欧盟针对纺织品进口颁布更严苛的数字标签法案 。', url: 'https://www.voguebusiness.com/sustainability/eu-digital-product-passports' },
-                { id: 203, date: '01.07', source: 'WWD', category: '权力更迭', title: '前 Celine 功勋高管宣布加入某中国高端运动品牌担任全球首席战略官 。', url: 'https://wwd.com/business/executive-moves' },
-                { id: 204, date: '01.06', source: 'BoF', category: '供应链', title: '全球皮料供应商实施‘配额制’供货逻辑 。', url: 'https://www.businessoffashion.com/articles/luxury/leather-supply-chain' }
+                { id: 1, type: 'industry', source: 'BoF', title: '奢侈品巨头的防御性权力集中：LVMH 宣布重组区域管理权重', logic: '资本如何在波动期通过组织结构调整管理地缘政治风险。', url: 'https://www.businessoffashion.com' },
+                { id: 2, type: 'runway', source: 'SHOWstudio', title: '2026 季：身体作为解构现场的再次降临', logic: '挑战传统模特规范，将 1990s 的实验性延续至虚拟身份探讨。', url: 'https://showstudio.com' },
+                { id: 3, type: 'culture', source: 'V&A', title: '全球设计史回顾：时尚叙事中的历史回声', logic: '时尚如何被写入公共文化并产生持久的设计影响力。', url: 'https://www.vam.ac.uk' },
+                { id: 4, type: 'tech', source: 'Wired', title: 'AI 模特与虚拟身份：技术如何模糊身体边界', logic: '数字孪生技术对时尚劳动力阶级的重塑。', url: 'https://www.wired.com' },
+                { id: 5, type: 'social', source: 'i-D', title: '身份流动的未来：亚文化如何进入主流政治讨论', logic: '边缘身体如何成为当代时尚系统的核心叙事。', url: 'https://i-d.co' }
             ];
 
-            const pastWeeksArchive = [
+            const pastArchive = [
                 {
-                    weekId: `${currentYear}-W${String(currentWeek - 1 ).padStart(2, '0')}`,
-                    period: '上一周回顾',
-                    theme: '跨年交替期的资本整合趋势复盘',
-                    intelCount: 8,
-                    summary: '在上一个周期内，核心品牌通过收缩非核心业务完成了现金流的回笼，为本周的并购动作埋下伏笔。',
+                    weekId: '2026-W01',
+                    period: '01.01 - 01.05',
+                    theme: '开年资本布局：从硬奢扩张到合规防御',
+                    summary: '本周重点聚焦于 LVMH 在制表领域的权力集中，以及欧盟新环保法案对供应链逻辑的穿透。',
                     sources: [
-                        { name: 'BoF', title: 'End of Year Strategy Review', url: 'https://www.businessoffashion.com' }
+                        { name: "BoF", url: "https://www.businessoffashion.com" },
+                        { name: "Vogue Business", url: "https://www.voguebusiness.com" }
                     ]
                 }
             ];
 
-            const annualReview2025 = {
-                title: "2025 年度产业决策白皮书",
-                summary: "2025 年是奢侈品行业从‘全域扩张’向‘存量防御’转型的关键一年 。资本流动更加审慎，权力结构向总部高度集中。",
-                metrics: [
-                    { label: "资本流转总量", value: "$14.2B", change: "-12%" },
-                    { label: "权力更迭频率", value: "142起", change: "+15%" },
-                    { label: "逻辑转型指数", value: "88.5", change: "合规驱动" }
-                ],
-                deepInsights: [
-                    { category: "资本与并购", content: "私募股权开始大规模介入中等规模品牌的资产剥离与重组。" },
-                    { category: "组织与权力", content: "创意总监的任期进一步缩短，首席执行官(CEO)的权力范围向创意领域渗透。" },
-                    { category: "商业逻辑", content: "‘供应链主权’驱动的硬核奢侈逻辑正在取代传统审美营销。" }
-                ]
-            };
-
-            const copyToClipboard = (text) => {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    setCopyFeedback("链接已复制");
-                    setTimeout(() => setCopyFeedback(null), 2000);
-                } catch (err) {
-                    setError({ title: "复制失败", message: "请手动复制。" });
-                }
-                document.body.removeChild(textArea);
-            };
-
-            const openLink = (url) => {
-                if (!url) return;
-                window.open(url, '_blank', 'noopener,noreferrer');
-            };
-
-            const generateWeeklyReview = async () => {
-                if (!DEEPSEEK_API_KEY) {
-                    setError({ title: "配置缺失", message: "请在代码第36行填入您的 DeepSeek API Key。" });
-                    return;
-                }
+            const generateWeeklyBrief = async () => {
                 setIsGenerating(true);
-                setError(null);
+                const systemPrompt = `你是一名享誉国际的时尚社会学家、产业分析师和文化策展人。
+                请基于提供的五个维度资讯，生成一份名为《一周时尚报刊》的深度报告。
+                要求：
+                1. 学术语境：使用专业、辛辣且具有穿透力的语言。讨论资本关联、权力结构、身体政治和技术边界。
+                2. 杂志排版指令：在文中适当位置插入 [PullQuote: 引用的金句] 和 [Illustration: 描述插图内容，例如：一副表现资本与身体关系的抽象线条图]。
+                3. 五大维度深度结合：不要分开列举，要将产业、秀场、文化、科技与社会议题融汇贯通。
+                4. 引用引用：在适当的观点后注明信源，例如 (Ref: BoF) 或 (Ref: Met Museum)。
+                5. 字数约 1000 字，分为“卷首语”、“产业权力场”、“身体叙事”、“技术疆界”及“结语”。`;
                 
-                const systemPrompt = `你是一名顶级时尚产业分析师。请为 ${currentYear} 年第 ${currentWeek} 周生成一份研判决策内参。字数不少于800字。请使用专业、深刻的语气，分析本周情报背后的产业逻辑。`;
-                const userQuery = `本周最新情报：\n${currentWeekIntel.map(n => `[${n.source}] ${n.title}`).join("\n")}`;
+                const userQuery = `本周核心动态：\n${currentWeekIntel.map(n => `[${n.source}] ${n.title}`).join('\n')}`;
 
                 try {
-                    const response = await fetch(DEEPSEEK_API_URL, {
-                        method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
-                        },
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            model: DEEPSEEK_MODEL,
-                            messages: [
-                                { role: "system", content: systemPrompt },
-                                { role: "user", content: userQuery }
-                            ],
-                            temperature: 0.7,
-                            max_tokens: 2000
+                            contents: [{ parts: [{ text: userQuery }] }],
+                            systemInstruction: { parts: [{ text: systemPrompt }] }
                         })
                     });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error?.message || `HTTP 错误: ${response.status}`);
-                    }
-
                     const result = await response.json();
-                    const text = result.choices?.[0]?.message?.content;
-                    
-                    if (!text) throw new Error("DeepSeek 未返回有效内容，请检查 API 状态。");
-                    
-                    setWeeklyReport(text);
+                    setWeeklyReport(result.candidates?.[0]?.content?.parts?.[0]?.text);
                     setShowReport(true);
-                    setActiveTab("this-week");
                 } catch (err) {
-                    console.error("API Error:", err);
-                    setError({ title: "生成失败", message: err.message || "API 调用异常，请检查网络或 API Key。" });
+                    console.error("生成失败", err);
                 } finally {
                     setIsGenerating(false);
                 }
             };
 
+            // 处理报刊文本中的插图和引言样式
+            const renderMagazineContent = (text) => {
+                if (!text) return null;
+                const parts = text.split(/(\[PullQuote:.*?\]|\[Illustration:.*?\])/);
+                return parts.map((part, index) => {
+                    if (part.startsWith('[PullQuote:')) {
+                        return <div key={index} className="pull-quote">{part.replace('[PullQuote:', '').replace(']', '')}</div>;
+                    } else if (part.startsWith('[Illustration:')) {
+                        const desc = part.replace('[Illustration:', '').replace(']', '');
+                        return (
+                            <div key={index} className="illustration-container">
+                                <div className="w-full h-64 bg-slate-100 flex items-center justify-center border border-slate-200 mb-2">
+                                    <span className="text-slate-400 font-bold italic"></span>
+                                </div>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">Fig {index}. AI Generated Illustration: {desc}</p>
+                            </div>
+                        );
+                    } else {
+                        return <p key={index} className={`mb-6 text-slate-800 leading-[1.8] text-lg text-justify ${index === 0 ? 'magazine-dropcap' : ''}`}>{part}</p>;
+                    }
+                });
+            };
+
             return (
                 <div className="min-h-screen flex flex-col">
-                    {copyFeedback && (
-                        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-black text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 animate-bounce text-xs font-bold">
-                            <Icon name="check-circle-2" className="text-green-400 w-4 h-4" /> {copyFeedback}
-                        </div>
-                    )}
-
-                    <header className="bg-white border-b border-slate-200 sticky top-0 z-50 px-6 py-4 text-left">
-                        <div className="max-w-7xl mx-auto flex justify-between items-center">
-                            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => { setActiveTab('this-week'); setShowReport(false); }}>
-                                <div className="bg-black text-white p-2 rounded-lg"><Icon name="shield-check" className="w-6 h-6" /></div>
+                    {/* Header */}
+                    <header className="bg-white border-b border-slate-100 sticky top-0 z-50 px-8 py-4">
+                        <div className="max-w-[1400px] mx-auto flex justify-between items-center">
+                            <div className="flex items-center space-x-4 cursor-pointer" onClick={() => setActiveTab('this-week')}>
+                                <div className="bg-black text-white p-2 rounded-xl"><Icon name="layers" className="w-6 h-6" /></div>
                                 <div>
-                                    <h1 className="text-xl font-extrabold tracking-tight">FashionIntelligence</h1>
-                                    <p className="text-[10px] text-blue-600 uppercase tracking-widest font-black text-left">Weekly Decision Inner Circle</p>
+                                    <h1 className="text-xl font-black tracking-tighter serif-title uppercase">一周时尚资讯速报</h1>
+                                    <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">Weekly Fashion Brief</p>
                                 </div>
                             </div>
-                            <div className="hidden md:flex items-center space-x-10">
-                                <div className="flex flex-col items-end mr-4">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">System Live Time</span>
-                                    <span className="text-xs font-mono font-bold text-slate-800">{currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                </div>
-                                <nav className="flex space-x-8">
-                                    <button onClick={() => { setActiveTab('this-week'); setShowReport(false); }} className={`text-sm font-bold transition-all ${activeTab === 'this-week' && !showReport ? 'text-black border-b-2 border-black pb-1' : 'text-slate-400 hover:text-black'}`}>本周看板</button>
-                                    <button onClick={() => { setActiveTab('past-weeks'); setShowReport(false); }} className={`text-sm font-bold transition-all ${activeTab === 'past-weeks' ? 'text-black border-b-2 border-black pb-1' : 'text-slate-400 hover:text-black'}`}>历周归档</button>
-                                </nav>
-                                <button onClick={generateWeeklyReview} disabled={isGenerating} className="bg-black text-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 transition-all hover:bg-slate-800 disabled:bg-slate-300">
-                                    {isGenerating ? <Icon name="loader-2" className="animate-spin w-4 h-4" /> : <Icon name="sparkles" className="w-4 h-4" />} 
-                                    {weeklyReport ? "更新深度研判" : "生成本周报刊"}
-                                </button>
-                            </div>
+                            
+                            <nav className="flex space-x-10">
+                                <button onClick={() => { setActiveTab('this-week'); setShowReport(false); }} className={`text-sm font-black transition-all tracking-widest ${activeTab === 'this-week' && !showReport ? 'text-black border-b-2 border-black pb-1' : 'text-slate-300 hover:text-black'}`}>本周看板</button>
+                                <button onClick={() => { setActiveTab('past-weeks'); setShowReport(false); }} className={`text-sm font-black transition-all tracking-widest ${activeTab === 'past-weeks' ? 'text-black border-b-2 border-black pb-1' : 'text-slate-300 hover:text-black'}`}>历周归档</button>
+                            </nav>
+
+                            <button onClick={generateWeeklyBrief} disabled={isGenerating} className="bg-black text-white px-8 py-2.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-3 hover:bg-slate-800 transition-all">
+                                {isGenerating ? <Icon name="loader-2" className="animate-spin" /> : <Icon name="sparkles" />} 
+                                生成本周报刊
+                            </button>
                         </div>
                     </header>
 
-                    <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 overflow-hidden">
-                        {error && (
-                            <div className="mb-6 bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center justify-between animate-in fade-in">
-                                <div className="flex items-center gap-3"><Icon name="alert-circle" className="text-red-500 w-5 h-5" /><p className="text-sm font-bold text-red-900">{error.message}</p></div>
-                                <button onClick={() => setError(null)} className="text-red-400"><Icon name="x" className="w-4 h-4" /></button>
-                            </div>
-                        )}
-
+                    <main className="flex-1 max-w-[1400px] mx-auto w-full px-8 py-10">
                         {activeTab === 'this-week' ? (
-                            <div className="grid grid-cols-12 gap-8 h-full">
-                                <div className={`${showReport ? 'col-span-5' : 'col-span-8'} transition-all duration-500 space-y-6 overflow-y-auto no-scrollbar pb-10 text-left`}>
-                                    <div className="flex items-baseline gap-3 mb-6 fade-in-up">
-                                        <h2 className="text-2xl font-black">{currentYear} 第 {currentWeek} 周</h2>
-                                        <span className="text-slate-400 text-sm font-medium">实时捕获中</span>
+                            <div className="grid grid-cols-12 gap-10 h-full text-left">
+                                {/* 左侧：五个维度的分类看板 */}
+                                <div className={`${showReport ? 'col-span-4' : 'col-span-8'} transition-all duration-700 space-y-12 overflow-y-auto no-scrollbar pb-20`}>
+                                    <div className="flex flex-col gap-2 mb-10">
+                                        <h2 className="text-6xl font-black tracking-tighter serif-title uppercase">2026 W02</h2>
+                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-sm italic">Observation Framework for Understanding Contemporary Fashion</p>
                                     </div>
-                                    <div className="relative border-l-2 border-slate-200 ml-3 space-y-8 pl-8">
-                                        {currentWeekIntel.map((item) => (
-                                            <div key={item.id} className="relative group">
-                                                <div className="absolute -left-[41px] top-1 w-4 h-4 rounded-full bg-white border-4 border-black group-hover:scale-110 transition-transform"></div>
-                                                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <span className="text-[9px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-bold uppercase tracking-widest">{item.source}</span>
-                                                        <span className="text-[10px] font-mono text-slate-400">{item.date}</span>
-                                                    </div>
-                                                    <h3 className={`font-bold mb-4 leading-snug group-hover:text-blue-700 transition-colors ${showReport ? 'text-sm' : 'text-lg'}`}>{item.title}</h3>
-                                                    <div className="flex justify-end gap-3">
-                                                        <button onClick={() => copyToClipboard(item.url)} className="text-slate-300 hover:text-black transition-colors"><Icon name="copy" className="w-3.5 h-3.5" /></button>
-                                                        <button onClick={() => openLink(item.url)} className="text-[10px] font-bold text-slate-900 hover:underline flex items-center gap-1">查阅原文 <Icon name="external-link" className="w-3 h-3" /></button>
-                                                    </div>
+
+                                    {Object.entries(dimensions).map(([key, dim]) => (
+                                        <section key={key} className="space-y-6">
+                                            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`${dim.bg} ${dim.color} p-2 rounded-lg`}><Icon name={dim.icon} className="w-5 h-5" /></div>
+                                                    <h3 className="font-black text-lg serif-title">{dim.label}</h3>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                            
+                                            <div className="grid gap-6">
+                                                {currentWeekIntel.filter(item => item.type === key).map(item => (
+                                                    <div key={item.id} className="group bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm hover:border-black transition-all duration-500 cursor-pointer">
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.source}</span>
+                                                            <a href={item.url} target="_blank" className="text-[10px] font-bold text-blue-600 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">READ MORE <Icon name="external-link" className="w-3 h-3" /></a>
+                                                        </div>
+                                                        <h4 className="font-bold text-xl mb-3 leading-snug">{item.title}</h4>
+                                                        <p className="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border-l-4 border-slate-200 font-medium italic leading-relaxed">{item.logic}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {dim.links.map(l => (
+                                                    <div key={l.name} className="p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-shadow cursor-default group">
+                                                        <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest">{l.name}</p>
+                                                        <p className="text-[9px] text-slate-400 mt-1 line-clamp-1">{l.desc}</p>
+                                                        <div className="flex justify-end mt-2">
+                                                            <button onClick={() => window.open(l.url, '_blank')} className="text-[8px] font-black text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 uppercase">Go to source <Icon name="external-link" className="w-2 h-2" /></button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    ))}
                                 </div>
 
-                                <div className={`${showReport ? 'col-span-7' : 'col-span-4'} transition-all duration-500 h-full`}>
+                                {/* 右侧：监测面板或报刊视图 */}
+                                <div className={`${showReport ? 'col-span-8' : 'col-span-4'} transition-all duration-700 h-full`}>
                                     {showReport ? (
-                                        <div className="bg-white h-[calc(100vh-160px)] rounded-[32px] border border-slate-200 shadow-xl overflow-hidden flex flex-col animate-in slide-in-from-right-10 text-left">
-                                            <div className="bg-slate-900 text-white p-6 flex justify-between items-center">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="bg-blue-600 p-2 rounded-lg"><Icon name="book-open" className="w-4 h-4" /></div>
+                                        <div className="bg-white h-[calc(100vh-180px)] rounded-[50px] border border-slate-100 shadow-2xl overflow-hidden flex flex-col animate-magazine text-left">
+                                            <div className="bg-black text-white p-12 relative overflow-hidden">
+                                                <div className="relative z-10 flex justify-between items-end">
                                                     <div>
-                                                        <h3 className="font-bold text-sm">本周期刊研判</h3>
-                                                        <p className="text-[10px] text-slate-400 font-mono text-left tracking-wider">{currentYear}-W{String(currentWeek).padStart(2, '0')} / INTERNAL INSIGHT</p>
+                                                        <div className="flex items-center gap-4 mb-8">
+                                                            <span className="bg-white/10 px-3 py-1 rounded text-[9px] font-black uppercase tracking-[0.4em] border border-white/20">Decision Intelligence</span>
+                                                            <span className="text-white/40 font-mono text-[9px] uppercase tracking-widest">Global Dispatch // 2026.01.09</span>
+                                                        </div>
+                                                        <h2 className="text-6xl font-black serif-title leading-[1.1] mb-2">一周时尚报刊</h2>
+                                                        <p className="text-lg font-medium italic text-white/60 font-serif">Deep Analysis of Industry Logic & Cultural Shift</p>
                                                     </div>
+                                                    <button onClick={() => setShowReport(false)} className="bg-white text-black p-4 rounded-full shadow-2xl hover:bg-slate-200 transition-colors"><Icon name="x" className="w-6 h-6" /></button>
                                                 </div>
-                                                <button onClick={() => setShowReport(false)} className="text-slate-400 hover:text-white p-2">
-                                                    <Icon name="chevron-right" className="w-5 h-5" />
-                                                </button>
+                                                <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/30 blur-[120px] -mr-40 -mt-40"></div>
                                             </div>
-                                            <div className="flex-1 overflow-y-auto p-8 prose prose-slate max-w-none no-scrollbar">
-                                                <div className="whitespace-pre-wrap leading-relaxed text-slate-700 text-base text-left">
-                                                    {weeklyReport}
+                                            <div className="flex-1 overflow-y-auto px-16 py-16 no-scrollbar text-left">
+                                                <div className="magazine-column font-serif">
+                                                    {renderMagazineContent(weeklyReport)}
+                                                </div>
+                                                <div className="mt-20 pt-10 border-t border-slate-100 flex justify-between items-center opacity-30">
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.5em]">End of Briefing</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.5em]">Academic Integrity // Fashion Intelligence</span>
                                                 </div>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="space-y-6 animate-in fade-in text-left">
-                                            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                                                <h3 className="text-sm font-bold mb-6 flex items-center gap-2 text-slate-400 uppercase tracking-tighter"><Icon name="pie-chart" className="text-blue-600 w-4 h-4" /> 实时权重监控</h3>
+                                        <div className="space-y-6 animate-fade-in text-left">
+                                            {/* 动态监测看板 */}
+                                            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden">
+                                                <div className="flex items-center justify-between mb-8">
+                                                    <h3 className="text-sm font-black flex items-center gap-2 opacity-50 uppercase tracking-[0.2em]"><Icon name="activity" /> 系统监测</h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                                        <span className="text-[9px] font-black text-green-600 uppercase">Live Tracking</span>
+                                                    </div>
+                                                </div>
                                                 <div className="space-y-6">
-                                                    <div><div className="flex justify-between text-[10px] font-black text-slate-400 mb-2 uppercase"><span>资本流向敏感度</span><span>85%</span></div><div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"><div className="bg-blue-600 h-full w-[85%]"></div></div></div>
-                                                    <div><div className="flex justify-between text-[10px] font-black text-slate-400 mb-2 uppercase"><span>权力重组频率</span><span>42%</span></div><div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"><div className="bg-slate-900 h-full w-[42%]"></div></div></div>
+                                                    {Object.entries(dimensions).map(([key, dim]) => {
+                                                        const count = currentWeekIntel.filter(i => i.type === key).length;
+                                                        const percentage = Math.min((count / 3) * 100, 100); // 假设每板块3条为100%
+                                                        return (
+                                                            <div key={key} className="space-y-2">
+                                                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                                                                    <span className="text-slate-400">{dim.label}</span>
+                                                                    <span className={count > 0 ? "text-black" : "text-slate-300"}>{count > 0 ? `${count} CAPTURED` : 'SCANNING'}</span>
+                                                                </div>
+                                                                <div className="w-full bg-slate-50 h-2 rounded-full overflow-hidden">
+                                                                    <div 
+                                                                        className={`h-full transition-all duration-1000 ease-out ${count > 0 ? 'bg-black' : 'bg-slate-100'}`} 
+                                                                        style={{ width: `${percentage}%` }}
+                                                                    ></div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
-                                            <div className="bg-blue-600 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden group">
-                                                <Icon name="sparkles" className="absolute -right-4 -top-4 w-24 h-24 opacity-10 group-hover:rotate-12 transition-transform" />
-                                                <h3 className="font-bold mb-4">生成本周报刊</h3>
-                                                <p className="text-xs text-blue-100 mb-6 leading-relaxed">系统已检测到 {currentYear} 第 {currentWeek} 周的 {currentWeekIntel.length} 条高价值数据。点击按钮启动逻辑串联。</p>
+                                            
+                                            <div className="annual-gradient p-10 rounded-[40px] text-white shadow-xl flex flex-col items-center justify-center text-center gap-8 group cursor-pointer hover:scale-[1.02] transition-all" onClick={generateWeeklyBrief}>
+                                                <div className="w-20 h-20 bg-white/10 rounded-[30px] flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500 shadow-inner">
+                                                    <Icon name="cpu" className="w-10 h-10" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-black text-2xl serif-title uppercase tracking-tighter">Ready to Review</h3>
+                                                    <p className="text-xs text-slate-400 font-bold mt-3 leading-relaxed max-w-[280px]">AI 监测已识别 {currentWeekIntel.length} 条有效决策信源。点击启动产业逻辑深度串联。</p>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
                         ) : (
-                            <div className="space-y-12 animate-in fade-in text-left pb-20 overflow-y-auto h-[calc(100vh-160px)] no-scrollbar">
-                                <section className="annual-gradient p-10 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
+                            /* 历周归档回顾 */
+                            <div className="space-y-16 animate-fade-in text-left pb-20 overflow-y-auto h-[calc(100vh-180px)] no-scrollbar">
+                                <section className="annual-gradient p-14 rounded-[60px] text-white shadow-2xl relative overflow-hidden">
                                     <div className="relative z-10">
-                                        <div className="flex justify-between items-start mb-10">
-                                            <div>
-                                                <span className="bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">归档回顾: 2025 年度</span>
-                                                <h2 className="text-4xl font-black mb-4">{annualReview2025.title}</h2>
-                                                <p className="text-slate-300 max-w-2xl leading-relaxed">{annualReview2025.summary}</p>
-                                            </div>
-                                            <Icon name="award" className="w-16 h-16 text-blue-500 opacity-50" strokeWidth={1} />
-                                        </div>
+                                        <span className="bg-blue-600 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.3em] mb-10 inline-block">Archived Intelligence</span>
+                                        <h2 className="text-7xl font-black mb-6 tracking-tighter serif-title">2025 年度产业白皮书</h2>
+                                        <p className="text-slate-400 max-w-4xl leading-relaxed text-xl font-medium italic">存量时代下的防御性美学与供应链重组。本报告涵盖了过去 52 周内的权力位移、商业逻辑迭代及社会议题对时尚系统的深刻干预。</p>
                                         
-                                        <div className="grid md:grid-cols-3 gap-8 mb-10">
-                                            {annualReview2025.metrics.map((m, i) => (
-                                                <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-sm">
-                                                    <p className="text-slate-400 text-xs font-bold uppercase mb-2 tracking-widest">{m.label}</p>
-                                                    <div className="flex items-baseline gap-3">
-                                                        <span className="text-3xl font-black">{m.value}</span>
-                                                        <span className={`text-xs font-bold ${m.change.startsWith('+') ? 'text-green-400' : m.change.includes('$') ? 'text-blue-400' : 'text-red-400'}`}>{m.change}</span>
-                                                    </div>
+                                        <div className="grid md:grid-cols-4 gap-8 mt-16 text-left">
+                                            {[
+                                                { label: "资本流转总量", val: "$14.2B", desc: "资本避险意图明显" },
+                                                { label: "权力更迭频率", val: "142 起", desc: "管理层任期缩短" },
+                                                { label: "AI 渗透指数", val: "68.5%", desc: "进入内容流深处" },
+                                                { label: "可持续合规性", val: "TOP 1", desc: "法律取代营销逻辑" }
+                                            ].map((m, i) => (
+                                                <div key={i} className="bg-white/5 border border-white/10 p-10 rounded-[40px] backdrop-blur-md hover:bg-white/10 transition-colors">
+                                                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-4">{m.label}</p>
+                                                    <span className="text-4xl font-black italic tracking-tighter">{m.val}</span>
+                                                    <p className="text-[10px] text-blue-400 font-bold mt-2 uppercase">{m.desc}</p>
                                                 </div>
                                             ))}
                                         </div>
-
-                                        <div className="space-y-4">
-                                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 tracking-tighter">年度产业逻辑演变复盘</h4>
-                                            <div className="grid md:grid-cols-3 gap-6">
-                                                {annualReview2025.deepInsights.map((insight, i) => (
-                                                    <div key={i} className="bg-white/5 p-5 rounded-2xl border border-white/5">
-                                                        <div className="flex items-center gap-2 mb-3">
-                                                            <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
-                                                            <span className="text-xs font-bold text-blue-400">{insight.category}</span>
-                                                        </div>
-                                                        <p className="text-sm text-slate-300 leading-relaxed">{insight.content}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
                                     </div>
-                                    <Icon name="globe" className="absolute -right-20 -bottom-20 w-80 h-80 text-white/5" />
+                                    <Icon name="globe" className="absolute -right-20 -top-20 w-[600px] h-[600px] text-white/5" strokeWidth={1} />
                                 </section>
 
-                                <div className="flex justify-between items-end"><h2 className="text-2xl font-black">历周决策档案</h2><Icon name="archive" className="text-slate-200 w-10 h-10" /></div>
+                                <div className="flex justify-between items-end border-b border-slate-200 pb-8">
+                                    <h2 className="text-4xl font-black serif-title uppercase tracking-tighter">历周归档回顾</h2>
+                                    <Icon name="archive" className="text-slate-200" size={48} />
+                                </div>
                                 
-                                <div className="grid gap-8">
-                                    {pastWeeksArchive.map(week => (
-                                        <div key={week.weekId} className="bg-white p-8 rounded-[32px] border border-slate-200 hover:border-black transition-all group">
-                                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8 text-left">
+                                <div className="grid gap-10">
+                                    {pastArchive.map(week => (
+                                        <div key={week.weekId} className="group bg-white p-12 rounded-[50px] border border-slate-100 hover:border-black transition-all duration-700">
+                                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-12 mb-10">
                                                 <div className="flex-1">
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">{week.weekId}</span>
-                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{week.period}</span>
+                                                    <div className="flex items-center gap-4 mb-6">
+                                                        <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">{week.weekId}</span>
+                                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{week.period}</span>
                                                     </div>
-                                                    <h4 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">{week.theme}</h4>
-                                                    <p className="text-sm text-slate-500 leading-relaxed max-w-2xl">{week.summary}</p>
+                                                    <h4 className="text-4xl font-black mb-4 serif-title leading-tight">{week.theme}</h4>
+                                                    <p className="text-xl text-slate-500 leading-relaxed font-medium italic opacity-70">{week.summary}</p>
                                                 </div>
-                                                <div className="flex items-center gap-6 border-l border-slate-100 pl-8">
-                                                    <div className="text-center">
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">情报量</p>
-                                                        <p className="text-xl font-black">{week.intelCount}</p>
-                                                    </div>
+                                                <div className="w-20 h-20 rounded-[30px] bg-slate-50 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-700 shadow-sm">
+                                                    <Icon name="chevron-right" size={32} />
                                                 </div>
                                             </div>
                                             
-                                            <div className="pt-6 border-t border-slate-100 text-left">
-                                                <h5 className="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-1">
-                                                    <Icon name="link-2" className="w-3 h-3" /> 原始数据与原文追溯
-                                                </h5>
-                                                <div className="grid md:grid-cols-2 gap-3">
-                                                    {week.sources.map((s, i) => (
-                                                        <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 group/item hover:bg-slate-100 transition-all">
-                                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                                <span className="text-[9px] font-black bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-400 uppercase">{s.name}</span>
-                                                                <span className="text-xs text-slate-600 truncate font-medium">{s.title}</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-2 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                                                <button onClick={() => copyToClipboard(s.url)} className="p-1 text-slate-400 hover:text-black transition-colors" title="复制链接"><Icon name="copy" className="w-3 h-3" /></button>
-                                                                <button onClick={() => openLink(s.url)} className="p-1 text-slate-400 hover:text-blue-600 transition-colors" title="阅读原文"><Icon name="external-link" className="w-3 h-3" /></button>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                            <div className="pt-10 border-t border-slate-100 flex flex-wrap gap-4 text-left">
+                                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest mr-6 self-center">参考数据来源及深度链接:</span>
+                                                {week.sources.map(s => (
+                                                    <a key={s.name} href={s.url} target="_blank" className="flex items-center gap-3 bg-slate-50 px-6 py-3 rounded-2xl text-xs font-bold hover:bg-black hover:text-white transition-all shadow-sm">
+                                                        {s.name} <Icon name="external-link" className="w-3 h-3" />
+                                                    </a>
+                                                ))}
                                             </div>
                                         </div>
                                     ))}
@@ -391,9 +431,14 @@
                         )}
                     </main>
 
-                    <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-4 flex justify-around items-center z-50">
-                        <button onClick={() => { setActiveTab('this-week'); setShowReport(false); }} className={`flex flex-col items-center gap-1 ${activeTab === 'this-week' ? 'text-blue-600' : 'text-slate-400'}`}><Icon name="layout-dashboard" className="w-5 h-5" /><span className="text-[10px] font-bold">看板</span></button>
-                        <button onClick={() => { setActiveTab('past-weeks'); setShowReport(false); }} className={`flex flex-col items-center gap-1 ${activeTab === 'past-weeks' ? 'text-blue-600' : 'text-slate-400'}`}><Icon name="history" className="w-5 h-5" /><span className="text-[10px] font-bold">档案</span></button>
+                    {/* Mobile Footer */}
+                    <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-10 py-6 flex justify-around items-center z-50">
+                        <button onClick={() => { setActiveTab('this-week'); setShowReport(false); }} className={`flex flex-col items-center gap-2 ${activeTab === 'this-week' ? 'text-black' : 'text-slate-300'}`}>
+                            <Icon name="layout-dashboard" className="w-6 h-6" /><span className="text-[9px] font-black uppercase tracking-tighter">看板</span>
+                        </button>
+                        <button onClick={() => { setActiveTab('past-weeks'); setShowReport(false); }} className={`flex flex-col items-center gap-2 ${activeTab === 'past-weeks' ? 'text-black' : 'text-slate-300'}`}>
+                            <Icon name="history" className="w-6 h-6" /><span className="text-[9px] font-black uppercase tracking-tighter">归档</span>
+                        </button>
                     </footer>
                 </div>
             );
