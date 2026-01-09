@@ -58,11 +58,12 @@
         }
 
         .illustration-container {
-            margin: 2rem 0;
-            背景色：#f0f0f0；
-            圆角半径：4px；
-            内边距：1rem；
+            margin: 2.5rem 0;
+            背景：#f8fafc；
+            圆角半径：12px；
+            内边距：1.5rem；
             文本对齐方式：居中；
+            border: 1px solid #e2e8f0;
         }
 
         @keyframes fadeInUp {
@@ -172,11 +173,11 @@
 
             // 本周情报数据
             const currentWeekIntel = [
-                { id: 1, type: 'industry', source: 'BoF', title: '奢侈品集团的防御性权力集中：LVMH宣布重组区域管理权重',logic: '资本如何在波动期通过组织结构调整管理地缘政治风险。', url: 'https://www.businessoffashion.com' },
-                { id: 2, type: 'runway', source: 'SHOWstudio', title: '2026季：身体作为解构现场的再次降临',logic: '挑战传统模型规范，将1990s的实验性承诺至虚拟身份探讨。', url: 'https://showstudio.com' },
-                { id: 3, type: 'culture', source: 'V&A', title: '全球设计史回顾：时尚叙事中的历史回声',logic: '时尚如何被书写公共文化并产生持久的设计影响力。', url: 'https://www.vam.ac.uk' },
-                { id: 4, type: 'tech', source: 'Wired', title: 'AI模型与虚拟身份：技术如何模糊身体边界',logic: '数字孪生技术对时尚劳动力阶梯的人口。', url: 'https://www.wired.com' },
-                { id: 5, type: 'trends', source: 'Lyst Index', title: '“静奢风”后的审美转向：极繁主义的消费回潮',logic: 'Lyst数据显示，高潮单品搜索量激增，反映了消费者对情绪表达的渴望。', url: 'https://www.lyst.com' }
+                { id: 1, type: 'industry', source: 'BoF', title: 'LVMH重心北：重组北美市场管理架构',logic: '对抗权力消费，通过高度集权的垂直管理结构实现意愿转移“瞬间”。', url: 'https://www.businessoffashion.com' },
+                { id: 2, type: 'runway', source: 'SHOWstudio', title: '2026季：解构对主义标准身体的再次三次',logic: '身体再次成为实验现场，通过极端不纯粹的剪裁挑战传统的审美权力分配。', url: 'https://showstudio.com' },
+                { id: 3, type: 'culture', source: 'V&A', title: '《设计的回声》：时尚叙述中的全球史视角重构',logic: '强调服装的历史回声如何当代的文化形态，时尚被正式写入公共文化体系。', url: 'https://www.vam.ac.uk' },
+                { id: 4, type: 'tech', source: 'Wired', title: 'AI虚拟模型的数字孪生与劳动力身份权博弈',logic: '数字身份权立法正在形成劳动力阶层：当边界模糊，品牌如何拥有意识形态主权？', url: 'https://www.wired.com' },
+                { id: 5, type: 'trends', source: 'WGSN', title: '情绪建模趋势：从“防御性穿着”到“感知增强”面料',logic: '趋势不再是颜色，而是心理情绪的预测性建模。消费者的不安全感正在转变为对面料功能性的极度依赖。', url: 'https://www.wgsn.com' }
             ];
 
             // 历周归档数据
@@ -195,11 +196,15 @@
                     ],
                     报告：`[PullQuote：2026年的时尚序，不是由裙摆的长度决定，而是由资本的厚度与合的规边界所界定。]
 
+【插图：未来主义风格的奢华腕表机芯与数字数据流融合，采用深海军蓝和银色调。】
+
 卷首语：
 2026年的第一周，时尚产业提出了极为矛盾的张力。一方面是奢侈品牌在硬奢领域的前瞻性拓展，试图通过掌握时间的精准度来锁定永恒的价值；另一方面又面临迫切严苛的全球合规环境，品牌不得不建立起体系的防御。
 
 权力产业场：
 LVMH对制表部门的重组不仅是人事频频，更是权力的再次集中。在不确定的地缘政治环境下，垂直整合供应链已成为大家的机构。（参考：WWD）
+
+【插图：一场高级时装秀，模特身着结构严谨、如同盔甲般的服装，背景是工业风的秀场。】
 
 身体叙述：
 秀场上，我们看到了一种“防御性美学”的兴起。服装不再装饰，而是作为一种保护壳，应对外部环境的感动。（参考：Vogue Runway）
@@ -280,6 +285,53 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                 localStorage.setItem('deepseek_api_key', val);
             };
 
+            // 动态获取Unsplash图片
+            const FashionImage = ({ description }) => {
+                const [imgUrl, setImgUrl] = useState(null);
+                const [loading, setLoading] = useState(true);
+
+                useEffect(() => {
+                    // 提取关键词
+                    const keywords = description.split(',')[0].replace(/[^\w\s]/gi, '').split(' ').slice(0, 3).join(',');
+                    const url = `https://source.unsplash.com/featured/1200x800?fashion,${keywords}`;
+                    
+                    // 预加载图片
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = () => {
+                        设置图像 URL(url);
+                        设置加载状态为false；
+                    };
+                    img.onerror = () => {
+                        setImgUrl("https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=80");
+                        设置加载状态为false；
+                    };
+                }， [描述]）;
+
+                返回 （
+                    <div className="illustration-container overflow-hidden">
+                        <div className={`w-full h-[400px] bg-slate-100 rounded-lg overflow-hidden relative ${loading ? 'animate-pulse' : ''}`}>
+                            {imgUrl && (
+                                <img
+                                    src={imgUrl}
+                                    alt={描述}
+                                    className="w-full h-full object-cover transition-opacity duration-1000"
+                                    style={{ opacity: loading ? 0 : 1 }}
+                                />
+                            )}
+                            {加载中 ＆＆ （
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <Icon name="loader-2" className="w-8 h-8 animate-spin text-slate-300" />
+                                </div>
+                            )}
+                        </div>
+                        <p className="mt-4 text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] italic">
+                            视觉智能 // {描述}
+                        </p>
+                    </div>
+                ）；
+            };
+
             // 处理报刊文本中的插图和引言样式
             const renderMagazineContent = (text) => {
                 如果 (!text) 返回 null；
@@ -289,14 +341,7 @@ WGSN的预测性建模指出，2026年将是“数字自然”的爆发年。色
                         return <div key={index} className="pull-quote">{part.replace('[PullQuote:', '').replace(']', '')}</div>;
                     } else if (part.startsWith('[Illustration:')) {
                         const desc = part.replace('[Illustration:', '').replace(']', '');
-                        返回 （
-                            <div key={index} className="illustration-container">
-                                <div className="w-full h-64 bg-slate-100 flex items-center justify-center border border-slate-200 mb-2">
-                                    <span className="text-slate-400 font-bold italic"></span>
-                                </div>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">图 {index}。AI 生成的插图：{desc}</p>
-                            </div>
-                        ）；
+                        返回 <FashionImage key={index} description={desc} />;
                     } 别的 {
                         返回 <p key={index} className="mb-6 leading-relaxed text-justify whitespace-pre-wrap">{part}</p>;
                     }
